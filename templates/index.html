@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>面談予約フォーム</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .welcome-message {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            line-height: 1.8;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        .checkbox-group {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        .datetime-group {
+            margin-bottom: 20px;
+        }
+        .time-select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        .preference-label {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .required {
+            color: red;
+        }
+        .flash-message {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>面談予約フォーム</h1>
+
+    <div class="welcome-message">
+        面談予約フォームにお問い合わせいただき、ありがとうございます。<br>
+        ご希望の日時をご入力いただきましたら、担当者より折り返しご連絡させていただきます。
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <div class="checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="meeting_preference" value="面談希望">
+                面談を希望する
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label>希望日時</label>
+            {% for i in range(1, 6) %}
+            <div class="datetime-group">
+                <div class="preference-label">第{{ i }}希望{% if i == 1 %} <span class="required">*</span>{% endif %}</div>
+                <input type="date" id="date{{ i }}" name="date{{ i }}" {% if i == 1 %}required{% endif %}>
+                <select name="time{{ i }}" id="time{{ i }}" class="time-select" {% if i == 1 %}required{% endif %}>
+                    <option value="">時間を選択</option>
+                    <option value="09:00-10:00">09:00-10:00</option>
+                    <option value="10:00-11:00">10:00-11:00</option>
+                    <option value="11:00-12:00">11:00-12:00</option>
+                    <option value="13:00-14:00">13:00-14:00</option>
+                    <option value="14:00-15:00">14:00-15:00</option>
+                    <option value="15:00-16:00">15:00-16:00</option>
+                    <option value="16:00-17:00">16:00-17:00</option>
+                    <option value="17:00-18:00">17:00-18:00</option>
+                    <option value="18:00-19:00">18:00-19:00</option>
+                </select>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            <label for="company">企業名 <span class="required">*</span></label>
+            <input type="text" id="company" name="company" required>
+        </div>
+
+        <div class="form-group">
+            <label for="contact_person">担当者名 <span class="required">*</span></label>
+            <input type="text" id="contact_person" name="contact_person" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">メールアドレス <span class="required">*</span></label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <button type="submit">予約リクエストを送信</button>
+    </form>
+
+    <script>
+        // 日付選択の最小値を今日に設定
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        const today = new Date().toISOString().split('T')[0];
+        dateInputs.forEach(input => {
+            input.min = today;
+        });
+    </script>
+</body>
+</html>
