@@ -37,21 +37,6 @@
             box-sizing: border-box;
             margin-bottom: 10px;
         }
-        .checkbox-group {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-        }
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-        }
-        .checkbox-label input[type="checkbox"] {
-            margin-right: 10px;
-            transform: scale(1.2);
-        }
         .datetime-group {
             margin-bottom: 20px;
         }
@@ -68,6 +53,22 @@
         }
         .required {
             color: red;
+            margin-left: 3px;
+        }
+        .checkbox-group {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
         }
         .flash-message {
             padding: 10px;
@@ -83,23 +84,19 @@
             color: #721c24;
         }
         button {
+            width: 100%;
             background-color: #007bff;
             color: white;
-            padding: 10px 20px;
+            padding: 15px 20px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            width: 100%;
             font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
         }
         button:hover {
             background-color: #0056b3;
-        }
-        .company-info {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
         }
     </style>
 </head>
@@ -131,7 +128,7 @@
             <label>希望日時</label>
             {% for i in range(1, 6) %}
             <div class="datetime-group">
-                <div class="preference-label">第{{ i }}希望{% if i == 1 %} <span class="required">*</span>{% endif %}</div>
+                <div class="preference-label">第{{ i }}希望{% if i == 1 %}<span class="required">*</span>{% endif %}</div>
                 <input type="date" id="date{{ i }}" name="date{{ i }}" {% if i == 1 %}required{% endif %}>
                 <select name="time{{ i }}" id="time{{ i }}" class="time-select" {% if i == 1 %}required{% endif %}>
                     <option value="">時間を選択</option>
@@ -150,15 +147,30 @@
         </div>
 
         <div class="form-group">
-            <label for="company">企業名 <span class="required">*</span></label>
+            <label for="company">企業名<span class="required">*</span></label>
             <input type="text" id="company" name="company" required>
         </div>
 
         <div class="form-group">
-            <label for="contact_person">担当者名 <span class="required">*</span></label>
+            <label for="contact_person">担当者名<span class="required">*</span></label>
             <input type="text" id="contact_person" name="contact_person" required>
         </div>
 
         <div class="form-group">
-            <label for="email">メールアドレス <span class="required">*</span></label>
-            <input type="email" id="email" name="email"
+            <label for="email">メールアドレス<span class="required">*</span></label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <button type="submit">予約リクエストを送信</button>
+    </form>
+
+    <script>
+        // 日付選択の最小値を今日に設定
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        const today = new Date().toISOString().split('T')[0];
+        dateInputs.forEach(input => {
+            input.min = today;
+        });
+    </script>
+</body>
+</html>
