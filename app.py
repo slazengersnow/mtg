@@ -3,6 +3,8 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
+import re
+from datetime import datetime
 
 # =====================================
 # 企業情報設定 (ここを編集してください)
@@ -10,7 +12,7 @@ import os
 COMPANY_INFO = {
     'name': 'フィルターバンク株式会社',    # 企業名
     'email': 'bizmowa@gmail.com',        # 連絡用メールアドレス
-    'phone': '03-XXXX-XXXX',            # 電話番号
+    'phone': '03-XXXX-XXXX',             # 電話番号
     'contact_person': '後藤 広明'         # 担当者名
 }
 
@@ -22,7 +24,7 @@ app.secret_key = 'meeting-scheduler-2025'
 
 # Gmail設定
 SENDER_EMAIL = "bizmowa1@gmail.com"
-PASSWORD = "zpgq silh txob xzaw"
+PASSWORD = "djch sqqw szow tfyg"
 NOTIFICATION_EMAILS = ["slazengersnow@gmail.com", "bizmowa@gmail.com"]
 
 def create_email_signature():
@@ -36,7 +38,6 @@ def create_email_signature():
         signature_parts.append(f"Email: {COMPANY_INFO['email']}")
     if COMPANY_INFO['phone']:
         signature_parts.append(f"Tel: {COMPANY_INFO['phone']}")
-    
     return "\n".join(signature_parts) if signature_parts else ""
 
 def send_notification_email(form_data):
@@ -59,7 +60,6 @@ def send_notification_email(form_data):
 担当者名: {form_data['contact_person']}
 メールアドレス: {form_data['email']}
 """
-
     # クライアント向けメール本文
     client_body = f"""
 {form_data['company']} {form_data['contact_person']}様
@@ -136,5 +136,7 @@ def index():
 
     return render_template('index.html', company_info=COMPANY_INFO)
 
+# Render環境などで外部からアクセス可能なポートにバインドするための設定
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
