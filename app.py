@@ -15,9 +15,9 @@ print(f"GMAIL_PASSWORD設定状況: {'設定済み' if os.environ.get('GMAIL_PAS
 # =====================================
 COMPANY_INFO = {
     'name': 'フィルターバンク株式会社',    # 企業名
-    'email': 'bizmowa@gmail.com',        # 連絡用メールアドレス
-    'phone': '03-XXXX-XXXX',            # 電話番号
-    'contact_person': '後藤 広明'         # 担当者名
+    'email': '',        # 連絡用メールアドレス
+    'phone': '',            # 電話番号
+    'contact_person': ''         # 担当者名
 }
 
 # =====================================
