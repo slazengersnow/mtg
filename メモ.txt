@@ -1,0 +1,8 @@
+GMAIL_USER=bizmowa1@gmail.com
+GMAIL_PASSWORD=vqfx gtji zcka rlls
+FLASK_SECRET_KEY=meeting-scheduler-2025
+
+mtgディレクトリの仮想環境にSSH接続するまでの流れ
+ssh -i /Users/gotouhiroaki/Programming/AWS/bizmowa.pem ec2-user@13.230.138.37
+cd ~/mtg
+source venv/bin/activate
