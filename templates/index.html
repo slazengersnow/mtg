@@ -167,84 +167,38 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('meetingForm');
-            const formInputs = form.querySelectorAll('input, select');
-
-            // セッションストレージを試し、だめならメモリ内変数を使用
-            let formDataStorage = {
-                data: {},
-                setItem: function(key, value) {
-                    try {
-                        sessionStorage.setItem(key, value);
-                    } catch (e) {
-                        this.data[key] = value;
-                    }
-                },
-                getItem: function(key) {
-                    try {
-                        return sessionStorage.getItem(key);
-                    } catch (e) {
-                        return this.data[key];
-                    }
-                },
-                removeItem: function(key) {
-                    try {
-                        sessionStorage.removeItem(key);
-                    } catch (e) {
-                        delete this.data[key];
-                    }
-                }
-            };
-
-            // フォームデータの保存
-            function saveFormData() {
-                const formData = {};
-                formInputs.forEach(input => {
-                    if (input.type === 'checkbox') {
-                        formData[input.name] = input.checked;
-                    } else {
-                        formData[input.name] = input.value;
-                    }
-                });
-                formDataStorage.setItem('meetingFormData', JSON.stringify(formData));
-            }
-
-            // フォームデータの復元
-            function loadFormData() {
-                const savedData = formDataStorage.getItem('meetingFormData');
-                if (savedData) {
-                    try {
-                        const formData = JSON.parse(savedData);
-                        formInputs.forEach(input => {
-                            if (input.type === 'checkbox') {
-                                input.checked = formData[input.name];
-                            } else if (formData[input.name]) {
-                                input.value = formData[input.name];
-                            }
-                        });
-                    } catch (e) {
-                        console.error('Form data parsing error:', e);
-                    }
-                }
-            }
-
-            // イベントリスナーの設定
-            form.addEventListener('submit', function() {
-                formDataStorage.removeItem('meetingFormData');
-            });
-
-            formInputs.forEach(input => {
-                input.addEventListener('change', saveFormData);
-            });
-
+            
+            // フォームの状態をメモリ上で管理するだけの単純な実装
+            let formState = new Map();
+    
             // 日付の最小値を設定
             const dateInputs = document.querySelectorAll('input[type="date"]');
             const today = new Date().toISOString().split('T')[0];
             dateInputs.forEach(input => {
                 input.min = today;
             });
-
-            // 初期データの読み込み
-            loadFormData();
+    
+            // フォームの送信を処理
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // フォームデータを収集
+                const formData = new FormData(form);
+                
+                // 通常のフォーム送信を実行
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('送信エラー:', error);
+                });
+            });
         });
     </script>
 </body>
