@@ -21,25 +21,29 @@ print(f"GMAIL_PASSWORD設定状況: {'設定済み' if os.environ.get('GMAIL_PAS
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'meeting-scheduler-2025')
 
+# セキュリティ設定の追加
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PREFERRED_URL_SCHEME'] = 'https'
+
 # メール設定（環境変数から取得）
 SENDER_EMAIL = os.environ.get('GMAIL_USER', 'bizmowa1@gmail.com')
 PASSWORD = os.environ.get('GMAIL_PASSWORD', 'your-app-password')
 NOTIFICATION_EMAILS = ["slazengersnow@gmail.com", "bizmowa@gmail.com"]
 
+# ベースURL設定
+BASE_URL = "https://mtg.bizmowa.com"
+
 # =====================================
 # メール本文生成関数
 # =====================================
 def create_email_content(form_data, is_admin=True):
-    """メール本文を作成する関数
-    
-    Args:
-        form_data (dict): フォームから送信されたデータ
-        is_admin (bool): 管理者向けメールかどうか
-    
-    Returns:
-        str: メール本文
-    """
+    # BASE_URLの定義を確認
+    BASE_URL = "https://mtg.bizmowa.com"  # 必ずhttpsを使用
+
     if is_admin:
+        meeting_link = f"{BASE_URL}/"
         return f"""
 新しい面談予約リクエストが届きました。
 
@@ -58,6 +62,8 @@ def create_email_content(form_data, is_admin=True):
 担当者名: {form_data['contact_person']}
 メールアドレス: {form_data['email']}
 
+予約フォームURL: {meeting_link}
+
 送信日時: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 """
     else:
@@ -75,6 +81,8 @@ def create_email_content(form_data, is_admin=True):
 第4希望: {form_data.get('date4', '')} {form_data.get('time4', '')}
 第5希望: {form_data.get('date5', '')} {form_data.get('time5', '')}
 
+予約フォームURL: {meeting_link}
+
 よろしくお願いいたします。
 """
 
@@ -82,18 +90,11 @@ def create_email_content(form_data, is_admin=True):
 # メール送信関数
 # =====================================
 def send_notification_email(form_data):
-    """通知メールを送信する関数
-    
-    Args:
-        form_data (dict): フォームから送信されたデータ
-    
-    Returns:
-        bool: 送信成功かどうか
-    """
+    """通知メールを送信する関数"""
     try:
         print("メール送信開始")
         
-        # 1. クライアント向けメールを作成（送信はまだしない）
+        # 1. クライアント向けメールを作成
         client_body = create_email_content(form_data, is_admin=False)
         auto_reply = MIMEMultipart()
         auto_reply["From"] = SENDER_EMAIL
@@ -122,10 +123,8 @@ def send_notification_email(form_data):
                     msg["Subject"] = "新しい面談予約リクエストが届きました"
                     msg["Date"] = formatdate(localtime=True)
                     
-                    # 管理者向け本文を添付
                     msg.attach(MIMEText(admin_body, "plain"))
                     
-                    # クライアントメールを.emlファイルとして添付
                     attachment = MIMEBase('message', 'rfc822')
                     attachment.set_payload(auto_reply.as_string())
                     encoders.encode_base64(attachment)
@@ -153,6 +152,15 @@ def send_notification_email(form_data):
         return False
 
 # =====================================
+# セキュリティミドルウェア
+# =====================================
+@app.before_request
+def before_request():
+    if not request.is_secure and not app.debug:
+        url = request.url.replace('http://', 'https://', 1)
+        return redirect(url, code=301)
+
+# =====================================
 # ルート設定
 # =====================================
 @app.route('/', methods=['GET', 'POST'])
@@ -160,7 +168,6 @@ def index():
     """メインページのルートハンドラ"""
     if request.method == 'POST':
         try:
-            # フォームデータの取得と整形
             form_data = {
                 'date1': request.form['date1'],
                 'time1': request.form['time1'],
@@ -178,7 +185,6 @@ def index():
                 'meeting_preference': '面談希望' if request.form.get('meeting_preference') else '希望なし'
             }
 
-            # メール送信処理の実行
             email_result = send_notification_email(form_data)
 
             if email_result:
@@ -186,12 +192,12 @@ def index():
             else:
                 flash('送信に失敗しました。しばらく時間をおいて再度お試しください。', 'error')
 
-            return redirect(url_for('index'))
+            return redirect(url_for('index', _scheme='https'))
 
         except Exception as e:
             print(f"予約処理エラー詳細: {str(e)}")
             flash('システムエラーが発生しました。', 'error')
-            return redirect(url_for('index'))
+            return redirect(url_for('index', _scheme='https'))
 
     return render_template('index.html')
 
@@ -200,4 +206,4 @@ def index():
 # =====================================
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, ssl_context='adhoc')
