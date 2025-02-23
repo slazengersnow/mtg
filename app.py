@@ -152,13 +152,13 @@ def send_notification_email(form_data):
         return False
 
 # =====================================
-# セキュリティミドルウェア
+# セキュリティミドルウェア 一時的に？Azureでデプロイする時にコメントアウト
 # =====================================
-@app.before_request
-def before_request():
-    if not request.is_secure and not app.debug:
-        url = request.url.replace('http://', 'https://', 1)
-        return redirect(url, code=301)
+#@app.before_request
+#def before_request():
+#    if not request.is_secure and not app.debug:
+#        url = request.url.replace('http://', 'https://', 1)
+#        return redirect(url, code=301)
 
 # =====================================
 # ルート設定
