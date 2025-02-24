@@ -27,8 +27,8 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PREFERRED_URL_SCHEME'] = 'https'
 
 # メール設定（環境変数から取得）
-SENDER_EMAIL = "info1@bizmowa.com"
-PASSWORD = "Sl05936623"
+SENDER_EMAIL = os.environ.get('MAIL_USER', 'info1@bizmowa.com')
+PASSWORD = os.environ.get('MAIL_PASSWORD', 'Sl05936623')
 
 NOTIFICATION_EMAILS = ["slazengersnow@gmail.com", "bizmowa@gmail.com"]
 
