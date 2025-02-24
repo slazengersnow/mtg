@@ -1,25 +1,18 @@
-from flask import Flask, render_template, request, flash, redirect, url_for
+import os
 import smtplib
+import ssl
+from flask import Flask, render_template, request, flash, redirect, url_for
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email.mime.application import MIMEApplication
 from email.utils import formatdate
-from email import encoders
-import os
 from datetime import datetime
-import traceback
-import json
-import re
-import time
-import ssl
 
 # =====================================
 # 環境変数の確認（起動時にログ出力）
 # =====================================
 print("環境変数確認:")
-print(f"GMAIL_USER: {os.environ.get('GMAIL_USER')}")
-print(f"GMAIL_PASSWORD設定状況: {'設定済み' if os.environ.get('GMAIL_PASSWORD') else '未設定'}")
+print(f"MAIL_USER: {os.environ.get('MAIL_USER')}")
+print(f"MAIL_PASSWORD設定状況: {'設定済み' if os.environ.get('MAIL_PASSWORD') else '未設定'}")
 
 # =====================================
 # アプリケーション設定
@@ -27,28 +20,28 @@ print(f"GMAIL_PASSWORD設定状況: {'設定済み' if os.environ.get('GMAIL_PAS
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'meeting-scheduler-2025')
 
-# セキュリティ設定（必要に応じて調整）
+# セキュリティ設定の追加
 app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PREFERRED_URL_SCHEME'] = 'https'
 
 # メール設定（環境変数から取得）
-SENDER_EMAIL = os.environ.get('GMAIL_USER', 'info1@bizmowa.com')
-PASSWORD = os.environ.get('GMAIL_PASSWORD', 'your-app-password')
+SENDER_EMAIL = "info1@bizmowa.com"
+PASSWORD = "Sl05936623"
+
 NOTIFICATION_EMAILS = ["slazengersnow@gmail.com", "bizmowa@gmail.com"]
 
-# ベースURL設定（予約フォームURLなどで利用）
-BASE_URL = "https://mtg.bizmowa.com"
+# ベースURL設定
+BASE_URL = "https://bizmowa-mtg-jp.an.r.appspot.com"
 
 # =====================================
 # メール本文生成関数
 # =====================================
 def create_email_content(form_data, is_admin=True):
-    # 予約フォームURL（環境変数や定数から取得）
-    meeting_link = BASE_URL or os.environ.get('BASE_URL', 'https://bizmowa-mtg-jp.an.r.appspot.com')
+    meeting_link = BASE_URL
+
     if is_admin:
-        meeting_link = f"{BASE_URL}/"
         return f"""
 新しい面談予約リクエストが届きました。
 
@@ -98,14 +91,13 @@ def send_notification_email(form_data):
     try:
         print("メール送信開始")
         
-        import ssl
+        # エックスサーバー SMTP設定
+        smtp_server = "sv1216.xserver.jp"
+        smtp_port = 465  # SSL/TLS port
+
+        # SSL/TLSコンテキストを作成
         context = ssl.create_default_context()
         
-        # エックスサーバーのSMTP設定
-        smtp_server = "sv1216.xserver.jp"
-        smtp_port = 465  # SSL/TLSの場合 465
-        
-        # SMTPサーバーに接続
         with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
             try:
                 # SMTP認証
@@ -161,7 +153,6 @@ def index():
     """メインページのルートハンドラ"""
     if request.method == 'POST':
         try:
-            # フォームデータの収集
             form_data = {
                 'date1': request.form['date1'],
                 'time1': request.form['time1'],
@@ -178,28 +169,22 @@ def index():
                 'email': request.form['email'],
                 'meeting_preference': '面談希望' if request.form.get('meeting_preference') else '希望なし'
             }
-            
-            print("フォームデータ:", form_data)
-            
+
             email_result = send_notification_email(form_data)
-            print("メール送信結果:", email_result)
-            
+
             if email_result:
                 flash('面談予約リクエストを受け付けました。担当者より折り返しご連絡させていただきます。', 'success')
             else:
                 flash('送信に失敗しました。しばらく時間をおいて再度お試しください。', 'error')
-                
+
             return redirect(url_for('index', _external=True, _scheme='https'))
-            
+
         except Exception as e:
             print(f"予約処理エラー詳細: {str(e)}")
-            print(traceback.format_exc())
             flash('システムエラーが発生しました。', 'error')
             return redirect(url_for('index', _external=True, _scheme='https'))
-    
-    return render_template('index.html')
 
-app.config['PREFERRED_URL_SCHEME'] = 'https'  # HTTPSをデフォルトに
+    return render_template('index.html')
 
 # =====================================
 # アプリケーション起動
