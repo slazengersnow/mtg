@@ -8,7 +8,8 @@ env_variables:
   GMAIL_USER: "info1@bizmowa.com"
   GMAIL_PASSWORD: "Sl05936623"
   FLASK_SECRET_KEY: "meeting-scheduler-2025"
-  BASE_URL: "https://bizmowa-mtg-jp.an.r.appspot.com"
+  BASE_URL: "mtg.bizmowa.com"
+  GAE_ENV: "standard"
 
 handlers:
 - url: /.*
