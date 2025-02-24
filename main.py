@@ -113,11 +113,11 @@ def send_notification_email(form_data):
                 client_msg.attach(MIMEText(create_email_content(form_data, is_admin=False), "plain"))
 
                 # 管理者通知メール作成
-                admin_msg = MIMEMultipart()
-                admin_msg["From"] = SENDER_EMAIL
-                admin_msg["Subject"] = "新しい面談予約リクエストが届きました"
-                admin_msg["Date"] = formatdate(localtime=True)
-                admin_msg.attach(MIMEText(create_email_content(form_data, is_admin=True), "plain"))
+                #admin_msg = MIMEMultipart()
+                #admin_msg["From"] = SENDER_EMAIL
+                #admin_msg["Subject"] = "新しい面談予約リクエストが届きました"
+                #admin_msg["Date"] = formatdate(localtime=True)
+                #admin_msg.attach(MIMEText(create_email_content(form_data, is_admin=True), "plain"))
 
                 # クライアントメール送信
                 server.send_message(client_msg)
@@ -127,6 +127,13 @@ def send_notification_email(form_data):
                 for recipient in NOTIFICATION_EMAILS:
                     admin_msg["To"] = recipient
                     try:
+                        admin_msg = MIMEMultipart()
+                        admin_msg["From"] = SENDER_EMAIL
+                        admin_msg["To"] = recipient
+                        admin_msg["Subject"] = "新しい面談予約リクエストが届きました"
+                        admin_msg["Date"] = formatdate(localtime=True)
+                        admin_msg.attach(MIMEText(create_email_content(form_data, is_admin=True), "plain"))
+
                         server.send_message(admin_msg)
                         print(f"管理者通知メール送信成功: {recipient}")
                     except Exception as recipient_error:
@@ -192,3 +199,6 @@ def index():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8000))
     app.run(host='0.0.0.0', port=port)
+
+print(f"送信先: {recipient}")
+print(f"送信元: {SENDER_EMAIL}")
