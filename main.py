@@ -199,6 +199,3 @@ def index():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8000))
     app.run(host='0.0.0.0', port=port)
-
-print(f"送信先: {recipient}")
-print(f"送信元: {SENDER_EMAIL}")
