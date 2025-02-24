@@ -192,7 +192,7 @@ def index():
             else:
                 flash('送信に失敗しました。しばらく時間をおいて再度お試しください。', 'error')
 
-            return redirect(url_for('index', _scheme='https'))
+            return redirect(url_for('index', _scheme='https', _external=True))
 
         except Exception as e:
             print(f"予約処理エラー詳細: {str(e)}")

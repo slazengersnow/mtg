@@ -10,3 +10,20 @@ env_variables:
 handlers:
 - url: /.*
   script: auto
+
+runtime: python39
+service: default
+env: standard
+instance_class: F1
+entrypoint: gunicorn -b :$PORT main:app
+
+env_variables:
+  GMAIL_USER: "info1@bizmowa.com"
+  GMAIL_PASSWORD: "Sl05936623"
+  FLASK_SECRET_KEY: "meeting-scheduler-2025"
+  BASE_URL: "https://bizmowa-mtg-jp.an.r.appspot.com"
+
+handlers:
+- url: /.*
+  script: auto
+  secure: always
