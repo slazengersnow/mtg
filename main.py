@@ -41,7 +41,7 @@ BASE_URL = "https://mtg.bizmowa.com"
 # =====================================
 def create_email_content(form_data, is_admin=True):
     # BASE_URLの定義を確認
-    BASE_URL = "https://mtg.bizmowa.com"  # 必ずhttpsを使用
+    meeting_link = os.environ.get('BASE_URL', 'https://bizmowa-mtg-jp.an.r.appspot.com')
 
     if is_admin:
         meeting_link = f"{BASE_URL}/"
@@ -194,12 +194,12 @@ def index():
             else:
                 flash('送信に失敗しました。しばらく時間をおいて再度お試しください。', 'error')
 
-            return redirect(url_for('index', _scheme='https', _external=True))
+            return redirect(url_for('index', _external=True, _scheme='https'))
 
         except Exception as e:
             print(f"予約処理エラー詳細: {str(e)}")
             flash('システムエラーが発生しました。', 'error')
-            return redirect(url_for('index', _scheme='https'))
+            return redirect(url_for('index', _external=True, _scheme='https'))
 
     return render_template('index.html')
 
