@@ -2,6 +2,11 @@ runtime: python39
 service: default
 env: standard
 instance_class: F1
+entrypoint: gunicorn -b :$PORT main:app
+env_variables:
+  GMAIL_USER: "bizmowa1@gmail.com"
+  FLASK_SECRET_KEY: "meeting-scheduler-2025"
+
 handlers:
 - url: /.*
   script: auto
