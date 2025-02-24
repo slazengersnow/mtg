@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "bizmowa-mtg-jp",
+  "private_key_id": "282954c3fd9d479e1a4b67d013bd1671dc2aecd8",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDt7vjuuY23sFMT\n9Ws912Y6z5TB5UF1UmTPdSHiC9+6n6tlvcyw9bAjLn4jGsMe7vt+yBaAIYpRWMki\nzNoNrhOcQ9cLRIH7KrAzBDmIDyh/m3arBA8mF6WULdZ+aQ+ZkjvvSLPUj/xoS/o6\n9okjK/9nrxI6Bfhxq7sSglfpIM0LeH/IJRjOsZQVij4mcKwE7vPJw0mb+mXeXdYG\npgMD0V2pUPuZ3yfooWjxOarwdmzdMtZomeh6cyV+Q6FOCJ41RLxHTFpyZI3e/9CH\nrYuxfXw+pyD49wMNs5ArLseY9/6qil9tZsZmituoLeIElfkbF2oaQQK/j2Luxnuz\niyUiMsWlAgMBAAECggEACxWngOOhxQ17XqzVIVfqxNGijK1EBpW0lET7iPQ5qOWY\nZBCFZoxuTMKf5hMbRP0oN/NVYlnC/7WDBVKFfr6oiOP7iDmu/ocHbLuv0cq2/cmT\nK+DFXeZwdH31hgUZ+3MTGhDeg91uCmPZFVcinhdbejaZ7ZxqmHfCKti/WgveUZWQ\nCaPUQUME8vji6tCu3KkVB06n7KzA9xjfM4M3kSsFuaTpmJmcaGKHrYq7lKJwIS8E\nmuqYEJ1lI6VRjxsWI+YrIms1zz7xT1C5iASFnpzMHIfBDeqe8B6/jI+ms64UUcq0\nGs5EPUtXP/ASrDjmgIUj8v1k4Px0nQKeie6V+wWU8QKBgQD9E9cCnytEi1C88xPa\ncI/xBChDn1VdCBNGpWh039ORioyBBTS7mKkf6DM4ZIBcfWVmErtHkKRbnznHaEAf\n7OWDY2x3heSJLJrTS8qUMuyXhhDNbhw6r8jhWaKvq/I3zhQ+xGTIiopB4VqeqmXS\n6YBWM5K7cWSdzRC+LRsmr6IvKQKBgQDwrlzvu+dxtV0pvrHMDwtmLqad55Hu+4+j\npxQEIy/2BBQZhr5gzDV9FZ+upgIaE4t/IEKwIMl8IJjAeGDLnn/O3y2bll4gF+OK\nrZfXjR7XnQbUFIDax3Nzo2aB/jOgnBCRsxuzd7pnHAdvUciCToT/Sqr91k6iaGNC\nI7Jd0Ju+HQKBgAKuERrQAK9LImG92Tn48y1ENADzUP4ZNcsLuV1zeVQTOYWsPnC2\nHyRdWx1/wvQ3x7ka/ay2VWc6+muoKPWtloibpuxlGJRzSnhuVwjWuTapjsf+IIJm\nliP8xQJDOd9paUF45vBQt0IXVtRTTZy8KEXBag5eFwiswT6iT6VLOtZxAoGAfMZo\neAC6ZEDaI6IxGtFR34+f4Y0EIxlXxkgAIIT9gFVs9i7c0+IKeOaU+j4mKM6pKybW\na+kTi756co314JozOFSLmHXEJm88D9EfPyhyLOXDfH+Eredo+zJjGlFnAoTmMiLg\n4ZHYmUv2rsd/Y87BNHjJXP+VlKz5iHhpKCnWFCECgYAwRq0aXjaIk1Hgfb63gHLN\nymnlCmv4tMMle7mdPTdMUmZqRwH4k9bP+jXI405gEFTYF4ktodTpgZP2II3QONf7\nfjdGRyjjGqEL34/ntRnX870a4nsLWoDBzMD5cYQ1aW7IgXdTTsn6/6/14EDTtRv5\nMSb9DjZYYz/NFeD/qyRvbg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "github-actions@bizmowa-mtg-jp.iam.gserviceaccount.com",
+  "client_id": "109943795519583481667",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/github-actions%40bizmowa-mtg-jp.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
