@@ -25,7 +25,7 @@ jobs:
     - name: Google Cloud Auth
       uses: google-github-actions/auth@v1
       with:
-        project_id: bizmowa-project-unique
+        project_id: bizmowa-mtg-jp
         credentials_json: ${{ secrets.GCP_CREDENTIALS }}
     
     - name: Deploy to App Engine
