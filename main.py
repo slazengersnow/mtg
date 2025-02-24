@@ -28,8 +28,9 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PREFERRED_URL_SCHEME'] = 'http'
 
 # メール設定（環境変数から取得）
-SENDER_EMAIL = os.environ.get('GMAIL_USER', 'bizmowa1@gmail.com')
-PASSWORD = os.environ.get('GMAIL_PASSWORD', 'your-app-password')
+SENDER_EMAIL = os.environ.get('GMAIL_USER', 'info1@bizmowa.com')
+PASSWORD = os.environ.get('GMAIL_PASSWORD', 'Sl05936623')
+
 NOTIFICATION_EMAILS = ["slazengersnow@gmail.com", "bizmowa@gmail.com"]
 
 # ベースURL設定
@@ -106,7 +107,7 @@ def send_notification_email(form_data):
         # 2. 管理者向けメール本文を作成
         admin_body = create_email_content(form_data, is_admin=True)
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+        with smtplib.SMTP_SSL("sv1216.xserver.jp", 465) as server:
             try:
                 server.login(SENDER_EMAIL, PASSWORD)
                 print("Gmail認証成功")
@@ -143,6 +144,7 @@ def send_notification_email(form_data):
             except smtplib.SMTPAuthenticationError as e:
                 print(f"Gmail認証エラー詳細: {str(e)}")
                 return False
+    
             except Exception as e:
                 print(f"メール送信エラー詳細: {str(e)}")
                 return False

@@ -1,0 +1,12 @@
+[2025-02-24 14:17:58 +0900] [85544] [INFO] Starting gunicorn 23.0.0
+[2025-02-24 14:17:58 +0900] [85544] [ERROR] Connection in use: ('0.0.0.0', 8002)
+[2025-02-24 14:17:58 +0900] [85544] [ERROR] connection to ('0.0.0.0', 8002) failed: [Errno 48] Address already in use
+[2025-02-24 14:17:59 +0900] [85544] [ERROR] Connection in use: ('0.0.0.0', 8002)
+[2025-02-24 14:17:59 +0900] [85544] [ERROR] connection to ('0.0.0.0', 8002) failed: [Errno 48] Address already in use
+[2025-02-24 14:18:00 +0900] [85544] [ERROR] Connection in use: ('0.0.0.0', 8002)
+[2025-02-24 14:18:00 +0900] [85544] [ERROR] connection to ('0.0.0.0', 8002) failed: [Errno 48] Address already in use
+[2025-02-24 14:18:01 +0900] [85544] [ERROR] Connection in use: ('0.0.0.0', 8002)
+[2025-02-24 14:18:01 +0900] [85544] [ERROR] connection to ('0.0.0.0', 8002) failed: [Errno 48] Address already in use
+[2025-02-24 14:18:02 +0900] [85544] [ERROR] Connection in use: ('0.0.0.0', 8002)
+[2025-02-24 14:18:02 +0900] [85544] [ERROR] connection to ('0.0.0.0', 8002) failed: [Errno 48] Address already in use
+[2025-02-24 14:18:03 +0900] [85544] [ERROR] Can't connect to ('0.0.0.0', 8002)
