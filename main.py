@@ -103,7 +103,7 @@ def send_notification_email(form_data):
         
         # エックスサーバーのSMTP設定
         smtp_server = "sv1216.xserver.jp"
-        smtp_port = 587  # SSL/TLSの場合 465
+        smtp_port = 465  # SSL/TLSの場合 465
         
         # SMTPサーバーに接続
         with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:

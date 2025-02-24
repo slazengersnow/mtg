@@ -4,8 +4,8 @@ env: standard
 instance_class: F2
 
 env_variables:
-  GMAIL_USER: "info1@bizmowa.com"
-  GMAIL_PASSWORD: "Sl05936623"
+  GMAIL_USER: "bizmowa1@gmail.com"
+  GMAIL_PASSWORD: "rlrc nttv abhg aimg"
   FLASK_SECRET_KEY: "meeting-scheduler-2025"
   BASE_URL: "https://bizmowa-mtg-jp.an.r.appspot.com"
   GAE_ENV: "standard"
