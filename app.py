@@ -22,10 +22,10 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'meeting-scheduler-2025')
 
 # セキュリティ設定の追加
-app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['PREFERRED_URL_SCHEME'] = 'https'
+app.config['PREFERRED_URL_SCHEME'] = 'http'
 
 # メール設定（環境変数から取得）
 SENDER_EMAIL = os.environ.get('GMAIL_USER', 'bizmowa1@gmail.com')
@@ -205,5 +205,6 @@ def index():
 # アプリケーション起動
 # =====================================
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, ssl_context='adhoc')
+    port = int(os.environ.get("PORT", 8000))
+    app.run(host='0.0.0.0', port=port)
+    

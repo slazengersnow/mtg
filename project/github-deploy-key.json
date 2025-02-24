@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "bizmowa-project-unique",
+  "private_key_id": "1c4457d750e61fce2b61c93fbff7e07c0f354931",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCWsv83jm+wYnJs\n1y9bH8h0Qpv90TRS3+99VEc5M2Ifkxz/0dgHI1pro3SYSKvY4V9Isan/v0WPg17u\nMp3lHHOHvk1as91CGMU40FZGRElFVoMtCsdt0E2ZmUkBFBBFFzKNP430Emp0lsZN\nI/j/rgcO9HT0Xen1X0InvTypGAbC60bQgQlH9iJzOVE8apWPVIYOPgb4WILhf6lD\ndORNxrEeNdaIt02QmdAD3jgTOA8PW9cfyez11MNCbccnMO3Qb+4MaQbKpcFPluyU\nGC96koAPzpvdJVcJ5Y+zoT00XxIzvFylvN7VzspkghwMOMX3gmlCHZtVhh8Kot70\nAh2tLV+lAgMBAAECggEABdAhyCLWbBdgEpK6YOl48gMfwUqwmgHJWyxFEw/IWS9z\njuqpSp0yf7RuavFir5sB8evogtT9+es3XjjVnmDalAHjOfx2LHaIJQjkSxGXQfV0\nWehwiOvgEmy3RDNh7UhXytsIvsF3Gcg3HgKlODeeThVf7Y0x2SUziBTkoiErIZmi\nkZnYZK4oBITDLrubwD9zpsoUhIAFpUQ84OBBs3a8nyolvfCD7A+7wXbh8g1Jm6Ac\nkB44mQkbwOmR1Z/3n0yE9AwwvYqKYPdzA/e43RAW8r7yBvoONDZnr67v0wOM0V7T\n5a/o/oluoWDV8W6K0vRGU/mIY2AL3jqTwiuxcn74AQKBgQDSJCsPqpfqV2bmLZjo\npeLXLuDKT1tKlitbURxlD3FAm/09pa8P9w5sArPOMSU2+aUcQQG+2K2viLcpnGc2\nelVry+tJuoUx1K0ht3kKC/RS686LGE87WZWvzwsUqTyUInzw81CWywuvw6UaY9xy\nU7/1OmnKk01ubSwEZTkLfSAf0QKBgQC3lgPzSHOd6euP+EIIENDiFq65kDnDGbiK\n/5kL1CmvGdbimXy12F07YH5SS3e9Qhi8d50rwj7lV/WG8K5zXCpH3Yo3N327rpOE\nCObCHLLVXBy/KBGIa8tt29CJj6deyMb9EAMZNkNkELb/zsriEgcvJOGNBWr+j9l8\n6ZM8f2brlQKBgQCyp2cooYsYAwiLZnaaS/XnpYYc2Yyug68GqpWuYYuSN0v8LjEA\nLLVJJJ8DDIssCt/Rfn7iZsp68ottx/eDvEuFIs+9VeLJM5uhj59K6FDmcm2dmaQ6\nu/Xjiu1LunmzIwL/woxgNu2Pl5B1ODMBy6vl66xnOgZZfF0wu3HdD5rREQKBgAjm\nS9C6XWh1U4cKKOFNN2MOaG/0buhnUcvjMh8hrNehMAqSGDqUf4iGV/lTUT2qe5p/\nTe42H2hsyCk/d6V9/Uq4kZ+1n/G+N8Z5y/3y+DRhn78giSEM4LK1qjlQ7nMo1oSk\nBxJsz/2E1eo2sx0cdJ6zcf+tGI+4l3l3tTyEjI+1AoGBAJP+iNmTP6BSu5lUhCIE\nqCzWVCdMddnCta+jC/wTYDldeCOw8IYo9P1frPfzepQp36Jg2IILehxlm/iU5NCm\nJ55RKckiOndGOF6vfutfnz8G2chL+jeNfNkt89l1Xr0CPnYCGXfia8DktXJWbBgt\nO4w4xPNgbTlLbF2WIuPMAFVK\n-----END PRIVATE KEY-----\n",
+  "client_email": "github-deploy@bizmowa-project-unique.iam.gserviceaccount.com",
+  "client_id": "104607973602332211399",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/github-deploy%40bizmowa-project-unique.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
