@@ -170,6 +170,7 @@ def index():
     """メインページのルートハンドラ"""
     if request.method == 'POST':
         try:
+            # フォームデータの収集
             form_data = {
                 'date1': request.form['date1'],
                 'time1': request.form['time1'],
@@ -187,21 +188,37 @@ def index():
                 'meeting_preference': '面談希望' if request.form.get('meeting_preference') else '希望なし'
             }
 
-            email_result = send_notification_email(form_data)
+            # メール送信の詳細なエラーハンドリング
+            try:
+                email_result = send_notification_email(form_data)
 
-            if email_result:
-                flash('面談予約リクエストを受け付けました。担当者より折り返しご連絡させていただきます。', 'success')
-            else:
-                flash('送信に失敗しました。しばらく時間をおいて再度お試しください。', 'error')
+                if email_result:
+                    flash('面談予約リクエストを受け付けました。担当者より折り返しご連絡させていただきます。', 'success')
+                else:
+                    # メール送信失敗時の詳細なエラーログ
+                    print("メール送信に失敗しました。")
+                    flash('送信に失敗しました。しばらく時間をおいて再度お試しください。', 'error')
 
+            except Exception as email_error:
+                # メール送信中の予期せぬエラーのトレース出力
+                print("メール送信中に予期せぬエラーが発生:")
+                print(traceback.format_exc())
+                flash('メール送信中にエラーが発生しました。', 'error')
+
+            # HTTPSでリダイレクト（正しい引数の使用）
             return redirect(url_for('index', _external=True, _scheme='https'))
 
         except Exception as e:
+            # 予約処理中の予期せぬエラーのトレース出力
             print(f"予約処理エラー詳細: {str(e)}")
+            print(traceback.format_exc())
             flash('システムエラーが発生しました。', 'error')
             return redirect(url_for('index', _external=True, _scheme='https'))
 
     return render_template('index.html')
+
+app.config['PREFERRED_URL_SCHEME'] = 'https'  # HTTPSをデフォルトに
+
 
 # =====================================
 # アプリケーション起動
