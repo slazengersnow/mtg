@@ -7,7 +7,7 @@ env_variables:
   # 以下の値は実際のデプロイ前に適切な値に変更してください
   # Google Cloud Secret Managerを使用するのが理想的です
   MAIL_USER: "info1@bizmowa.com"
-  # MAIL_PASSWORD: "Sl05936623" 
+  MAIL_PASSWORD: "Sl05936623" 
   ADMIN_EMAILS: "slazengersnow@gmail.com,bizmowa@gmail.com"
 
 handlers:
