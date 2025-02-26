@@ -19,20 +19,8 @@ logger = logging.getLogger(__name__)
 # Secret Managerからシークレットを取得する関数
 # =====================================
 def access_secret(secret_id, version_id="latest"):
-    """
-    Google Cloud Secret Managerからシークレットを取得する
-    
-    Args:
-        secret_id (str): シークレットのID
-        version_id (str): シークレットのバージョン（デフォルトは最新）
-        
-    Returns:
-        str: シークレットの値
-    """
     try:
-        # プロジェクトIDを自動取得（App Engineの環境では自動的に現在のプロジェクトを特定）
         project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
-        
         if not project_id:
             logger.warning("プロジェクトIDが環境変数から取得できませんでした。")
             return None
@@ -53,8 +41,8 @@ def access_secret(secret_id, version_id="latest"):
 # =====================================
 logger.info("環境変数確認:")
 logger.info(f"MAIL_USER: {os.environ.get('MAIL_USER')}")
-logger.info(f"BASE_URL: {os.environ.get('BASE_URL')}")
 logger.info(f"GOOGLE_CLOUD_PROJECT: {os.environ.get('GOOGLE_CLOUD_PROJECT')}")
+logger.info(f"BASE_URL: {os.environ.get('BASE_URL')}")
 
 # =====================================
 # アプリケーション設定
@@ -62,7 +50,7 @@ logger.info(f"GOOGLE_CLOUD_PROJECT: {os.environ.get('GOOGLE_CLOUD_PROJECT')}")
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'meeting-scheduler-2025')
 
-# セキュリティ設定の追加
+# セキュリティ設定
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
@@ -79,24 +67,22 @@ if not PASSWORD:
 else:
     logger.info("Secret Managerからパスワードを取得しました")
 
-# 管理者メール - 環境変数がない場合はここで直接設定したアドレスを使用
-DEFAULT_ADMIN_EMAILS = [
+# 管理者メールアドレス
+NOTIFICATION_EMAILS = [
     "slazengersnow@gmail.com", 
-    "bizmowa@gmail.com",
-    # 必要に応じて追加のメールアドレスをここに記載
+    "bizmowa@gmail.com"
 ]
-
-# 環境変数に設定がある場合はそちらを優先
-NOTIFICATION_EMAILS = os.environ.get('ADMIN_EMAILS', None)
-if NOTIFICATION_EMAILS:
-    NOTIFICATION_EMAILS = NOTIFICATION_EMAILS.split(',')
-    logger.info(f"環境変数から管理者メールアドレスを取得: {NOTIFICATION_EMAILS}")
-else:
-    NOTIFICATION_EMAILS = DEFAULT_ADMIN_EMAILS
-    logger.info(f"デフォルトの管理者メールアドレスを使用: {NOTIFICATION_EMAILS}")
 
 # ベースURL設定
 BASE_URL = os.environ.get('BASE_URL', "https://bizmowa-mtg-jp.an.r.appspot.com")
+
+# =====================================
+# セキュリティヘッダー
+# =====================================
+@app.after_request
+def add_security_headers(response):
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+    return response
 
 # =====================================
 # メール本文生成関数
@@ -185,7 +171,7 @@ def send_notification_email(form_data):
 
                 # 管理者通知メール送信
                 for recipient in NOTIFICATION_EMAILS:
-                    recipient = recipient.strip()  # 空白を削除
+                    recipient = recipient.strip()
                     if not recipient:
                         continue
                         
@@ -214,20 +200,6 @@ def send_notification_email(form_data):
     except Exception as e:
         logger.error(f"予期せぬエラー詳細: {str(e)}")
         return False
-
-# =====================================
-# CORSとセキュリティヘッダー
-# =====================================
-@app.after_request
-def add_security_headers(response):
-    # CORSヘッダーの追加
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    
-    # セキュリティヘッダーの設定
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
-    return response
 
 # =====================================
 # ルート設定

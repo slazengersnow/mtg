@@ -9,7 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -21,31 +22,17 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: google-github-actions/auth@v1
       with:
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SA_KEY }}
-        export_default_credentials: true
-
-    - name: Update app.yaml with secrets
-      run: |
-        if [ -f "app.yaml" ]; then
-          # 既存のapp.yamlを使用
-          sed -i "s|MAIL_USER:.*|MAIL_USER: \"${{ secrets.MAIL_USER }}\"|g" app.yaml
-          sed -i "s|#\ MAIL_PASSWORD:.*|MAIL_PASSWORD: \"${{ secrets.MAIL_PASSWORD }}\"|g" app.yaml
-        else
-          # app.yamlが存在しない場合は新規作成
-          echo "runtime: python39" > app.yaml
-          echo "entrypoint: gunicorn -b :\$PORT main:app" >> app.yaml
-          echo "" >> app.yaml
-          echo "env_variables:" >> app.yaml
-          echo "  FLASK_SECRET_KEY: \"${{ secrets.FLASK_SECRET_KEY }}\"" >> app.yaml
-          echo "  MAIL_USER: \"${{ secrets.MAIL_USER }}\"" >> app.yaml
-          echo "  MAIL_PASSWORD: \"${{ secrets.MAIL_PASSWORD }}\"" >> app.yaml
-          echo "  BASE_URL: \"https://bizmowa-mtg-jp.an.r.appspot.com\"" >> app.yaml
-          echo "  ADMIN_EMAILS: \"${{ secrets.ADMIN_EMAILS }}\"" >> app.yaml
-        fi
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
         
     - name: Deploy to App Engine
-      run: gcloud app deploy app.yaml --quiet
+      id: deploy
+      uses: google-github-actions/deploy-appengine@v1
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        deliverables: app.yaml
+        promote: true
+        version: v1

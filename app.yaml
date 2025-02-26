@@ -6,6 +6,7 @@ env_variables:
   BASE_URL: "https://bizmowa-mtg-jp.an.r.appspot.com"
   MAIL_USER: "info1@bizmowa.com"
   # パスワードはSecret Managerで管理するため不要
+  # MAIL_PASSWORD: "パスワード" 
 
 handlers:
 - url: /static
