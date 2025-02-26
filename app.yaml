@@ -4,17 +4,18 @@ entrypoint: gunicorn -b :$PORT main:app
 env_variables:
   FLASK_SECRET_KEY: "meeting-scheduler-2025"
   BASE_URL: "https://bizmowa-mtg-jp.an.r.appspot.com"
-  # 以下の値は実際のデプロイ前に適切な値に変更してください
-  # Google Cloud Secret Managerを使用するのが理想的です
   MAIL_USER: "info1@bizmowa.com"
-  MAIL_PASSWORD: "Sl05936623" 
-  ADMIN_EMAILS: "slazengersnow@gmail.com,bizmowa@gmail.com"
+  # パスワードはSecret Managerで管理するため不要
 
 handlers:
 - url: /static
   static_dir: static
   secure: always
+  http_headers:
+    Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
 
 - url: /.*
   script: auto
   secure: always
+  http_headers:
+    Content-Security-Policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"

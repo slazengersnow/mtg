@@ -7,6 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.utils import formatdate
 from datetime import datetime
 import logging
+from google.cloud import secretmanager
 
 # =====================================
 # ロギング設定
@@ -15,12 +16,45 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # =====================================
+# Secret Managerからシークレットを取得する関数
+# =====================================
+def access_secret(secret_id, version_id="latest"):
+    """
+    Google Cloud Secret Managerからシークレットを取得する
+    
+    Args:
+        secret_id (str): シークレットのID
+        version_id (str): シークレットのバージョン（デフォルトは最新）
+        
+    Returns:
+        str: シークレットの値
+    """
+    try:
+        # プロジェクトIDを自動取得（App Engineの環境では自動的に現在のプロジェクトを特定）
+        project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+        
+        if not project_id:
+            logger.warning("プロジェクトIDが環境変数から取得できませんでした。")
+            return None
+            
+        client = secretmanager.SecretManagerServiceClient()
+        name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
+        response = client.access_secret_version(request={"name": name})
+        
+        logger.info(f"シークレット '{secret_id}' を正常に取得しました")
+        return response.payload.data.decode("UTF-8")
+        
+    except Exception as e:
+        logger.error(f"シークレット '{secret_id}' の取得に失敗しました: {str(e)}")
+        return None
+
+# =====================================
 # 環境変数の確認（起動時にログ出力）
 # =====================================
 logger.info("環境変数確認:")
 logger.info(f"MAIL_USER: {os.environ.get('MAIL_USER')}")
-logger.info(f"MAIL_PASSWORD設定状況: {'設定済み' if os.environ.get('MAIL_PASSWORD') else '未設定'}")
 logger.info(f"BASE_URL: {os.environ.get('BASE_URL')}")
+logger.info(f"GOOGLE_CLOUD_PROJECT: {os.environ.get('GOOGLE_CLOUD_PROJECT')}")
 
 # =====================================
 # アプリケーション設定
@@ -34,12 +68,32 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PREFERRED_URL_SCHEME'] = 'https'
 
-# メール設定（環境変数から取得）
-SENDER_EMAIL = os.environ.get('MAIL_USER', '')
-PASSWORD = os.environ.get('MAIL_PASSWORD', '')
+# メール設定
+SENDER_EMAIL = os.environ.get('MAIL_USER', 'info1@bizmowa.com')
 
-# 管理者メール
-NOTIFICATION_EMAILS = os.environ.get('ADMIN_EMAILS', 'slazengersnow@gmail.com,bizmowa@gmail.com').split(',')
+# パスワードをSecret Managerから取得（フォールバックとして環境変数も使用）
+PASSWORD = access_secret('mail-password')
+if not PASSWORD:
+    PASSWORD = os.environ.get('MAIL_PASSWORD', '')
+    logger.info("環境変数からパスワードを取得しました" if PASSWORD else "パスワードが設定されていません")
+else:
+    logger.info("Secret Managerからパスワードを取得しました")
+
+# 管理者メール - 環境変数がない場合はここで直接設定したアドレスを使用
+DEFAULT_ADMIN_EMAILS = [
+    "slazengersnow@gmail.com", 
+    "bizmowa@gmail.com",
+    # 必要に応じて追加のメールアドレスをここに記載
+]
+
+# 環境変数に設定がある場合はそちらを優先
+NOTIFICATION_EMAILS = os.environ.get('ADMIN_EMAILS', None)
+if NOTIFICATION_EMAILS:
+    NOTIFICATION_EMAILS = NOTIFICATION_EMAILS.split(',')
+    logger.info(f"環境変数から管理者メールアドレスを取得: {NOTIFICATION_EMAILS}")
+else:
+    NOTIFICATION_EMAILS = DEFAULT_ADMIN_EMAILS
+    logger.info(f"デフォルトの管理者メールアドレスを使用: {NOTIFICATION_EMAILS}")
 
 # ベースURL設定
 BASE_URL = os.environ.get('BASE_URL', "https://bizmowa-mtg-jp.an.r.appspot.com")
@@ -160,6 +214,20 @@ def send_notification_email(form_data):
     except Exception as e:
         logger.error(f"予期せぬエラー詳細: {str(e)}")
         return False
+
+# =====================================
+# CORSとセキュリティヘッダー
+# =====================================
+@app.after_request
+def add_security_headers(response):
+    # CORSヘッダーの追加
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    
+    # セキュリティヘッダーの設定
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+    return response
 
 # =====================================
 # ルート設定
