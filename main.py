@@ -5,9 +5,7 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-from email.utils import formatdate, make_msgid, formataddr
-from email import message_from_string
-from email import encoders
+from email.utils import formatdate, formataddr
 from datetime import datetime
 import logging
 from pathlib import Path
@@ -119,33 +117,25 @@ def create_email_content(form_data, is_admin=True):
 
 予約フォームURL: {meeting_link}
 
-※申込内容の詳細をメール添付ファイル（.eml形式）でお送りしています。
- メールクライアントで開くことでご確認いただけます。
+※申込内容の詳細をテキストファイルで添付しております。
+ こちらでご確認いただけます。
 
 よろしくお願いいたします。
 """
 
 # =====================================
-# EMLファイル形式のメールを作成する関数
+# 申込内容のテキストファイルを作成する関数
 # =====================================
-def create_email_eml_file(form_data):
-    """申込内容を含むEMLファイルを作成してパスを返す"""
+def create_application_text_file(form_data):
+    """申込内容を含むテキストファイルを作成してパスを返す"""
     try:
         # 一時ファイルのパスを生成
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        filename = f"お申し込み内容_{form_data['company']}_{timestamp}.eml"
+        filename = f"お申し込み内容_{form_data['company']}_{timestamp}.txt"
         file_path = os.path.join(tempfile.gettempdir(), filename)
         
-        # メールオブジェクトを作成
-        msg = MIMEMultipart()
-        msg["From"] = formataddr((SENDER_NAME, SENDER_EMAIL))
-        msg["To"] = formataddr((form_data['contact_person'], form_data['email']))
-        msg["Subject"] = f"【面談申込確認】{form_data['company']}様 面談のご予約内容"
-        msg["Date"] = formatdate(localtime=True)
-        msg["Message-ID"] = make_msgid(domain="bizmowa.com")
-        
-        # メール本文
-        email_body = f"""
+        # メール内容をテキストで作成
+        email_content = f"""
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 面談申し込み内容 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -183,17 +173,14 @@ URL: {BASE_URL}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """
         
-        # 本文を追加
-        msg.attach(MIMEText(email_body, "plain", "utf-8"))
-        
-        # EMLファイルとして保存
-        with open(file_path, 'wb') as f:
-            f.write(msg.as_bytes())
+        # テキストファイルとして保存
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(email_content)
             
-        logger.info(f"EMLファイルを作成しました: {file_path}")
+        logger.info(f"テキストファイルを作成しました: {file_path}")
         return file_path
     except Exception as e:
-        logger.error(f"EMLファイル作成エラー: {str(e)}")
+        logger.error(f"テキストファイル作成エラー: {str(e)}")
         return None
 
 # =====================================
@@ -215,6 +202,86 @@ def get_attachment_files():
         return []
 
 # =====================================
+# PDF版申込書を作成する関数（オプション）
+# =====================================
+def create_application_pdf(form_data):
+    """
+    申込内容をPDFで作成する（依存ライブラリが必要なためオプション）
+    実際に使用する場合は、reportlabなどのライブラリを追加してください
+    """
+    # PDFライブラリがインストールされている場合のみ動作
+    try:
+        from reportlab.lib.pagesizes import letter
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet
+        from reportlab.pdfbase import pdfmetrics
+        from reportlab.pdfbase.ttfonts import TTFont
+        
+        # 一時ファイルのパスを生成
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        filename = f"お申し込み内容_{form_data['company']}_{timestamp}.pdf"
+        file_path = os.path.join(tempfile.gettempdir(), filename)
+        
+        # 日本語フォントの登録（必要に応じて）
+        try:
+            pdfmetrics.registerFont(TTFont('IPAGothic', '/usr/share/fonts/ipa-gothic/ipag.ttf'))
+            font_name = 'IPAGothic'
+        except:
+            font_name = 'Helvetica'
+        
+        # PDFドキュメント設定
+        doc = SimpleDocTemplate(file_path, pagesize=letter)
+        styles = getSampleStyleSheet()
+        elements = []
+        
+        # タイトル
+        title = Paragraph(f"面談申し込み内容 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", styles['Title'])
+        elements.append(title)
+        elements.append(Spacer(1, 12))
+        
+        # 本文
+        content = f"""
+{form_data['company']} {form_data['contact_person']}様
+
+面談予約フォームにお問い合わせいただき、ありがとうございます。
+以下の内容でご予約を承りました。
+
+【希望日時】
+第1希望: {form_data['date1']} {form_data['time1']}
+第2希望: {form_data.get('date2', '')} {form_data.get('time2', '')}
+第3希望: {form_data.get('date3', '')} {form_data.get('time3', '')}
+第4希望: {form_data.get('date4', '')} {form_data.get('time4', '')}
+第5希望: {form_data.get('date5', '')} {form_data.get('time5', '')}
+
+【面談希望】
+{form_data.get('meeting_preference', '希望なし')}
+
+【連絡先情報】
+企業名: {form_data['company']}
+担当者名: {form_data['contact_person']}
+メールアドレス: {form_data['email']}
+
+【予約フォームURL】
+{BASE_URL}
+
+担当者より2、3営業日以内に折り返しご連絡させていただきます。
+よろしくお願いいたします。
+"""
+        body = Paragraph(content.replace('\n', '<br/>'), styles['Normal'])
+        elements.append(body)
+        
+        # PDFの生成
+        doc.build(elements)
+        logger.info(f"PDFファイルを作成しました: {file_path}")
+        return file_path
+    except ImportError:
+        logger.warning("reportlabライブラリがインストールされていないため、PDFは作成しません")
+        return None
+    except Exception as e:
+        logger.error(f"PDF作成エラー: {str(e)}")
+        return None
+
+# =====================================
 # メール送信関数
 # =====================================
 def send_notification_email(form_data):
@@ -228,8 +295,8 @@ def send_notification_email(form_data):
         # 添付ファイルのリストを取得
         attachment_files = get_attachment_files()
         
-        # EMLファイルを作成
-        eml_file = create_email_eml_file(form_data)
+        # 申込内容をテキストファイルとして保存
+        text_file = create_application_text_file(form_data)
         
         # エックスサーバー SMTP設定
         smtp_server = "sv1216.xserver.jp"
@@ -252,17 +319,17 @@ def send_notification_email(form_data):
                 client_msg["Date"] = formatdate(localtime=True)
                 client_msg.attach(MIMEText(create_email_content(form_data, is_admin=False), "plain", "utf-8"))
 
-                # EMLファイルを添付
-                if eml_file and os.path.exists(eml_file):
+                # 申込内容のテキストファイルを添付
+                if text_file and os.path.exists(text_file):
                     try:
-                        with open(eml_file, "rb") as attachment:
-                            filename = os.path.basename(eml_file)
+                        with open(text_file, "rb") as attachment:
+                            filename = os.path.basename(text_file)
                             part = MIMEApplication(attachment.read(), Name=filename)
                             part['Content-Disposition'] = f'attachment; filename="{filename}"'
                             client_msg.attach(part)
-                            logger.info(f"EMLファイルを添付しました: {filename}")
+                            logger.info(f"テキストファイルを添付しました: {filename}")
                     except Exception as file_error:
-                        logger.error(f"EMLファイル添付エラー: {str(file_error)}")
+                        logger.error(f"テキストファイル添付エラー: {str(file_error)}")
                 
                 # 通常の添付ファイルの追加
                 for attachment_file in attachment_files:
@@ -294,10 +361,10 @@ def send_notification_email(form_data):
                         admin_msg["Date"] = formatdate(localtime=True)
                         admin_msg.attach(MIMEText(create_email_content(form_data, is_admin=True), "plain", "utf-8"))
 
-                        # 管理者メールにもEMLファイルを添付
-                        if eml_file and os.path.exists(eml_file):
-                            with open(eml_file, "rb") as attachment:
-                                filename = os.path.basename(eml_file)
+                        # 管理者メールにも申込内容ファイルを添付
+                        if text_file and os.path.exists(text_file):
+                            with open(text_file, "rb") as attachment:
+                                filename = os.path.basename(text_file)
                                 part = MIMEApplication(attachment.read(), Name=filename)
                                 part['Content-Disposition'] = f'attachment; filename="{filename}"'
                                 admin_msg.attach(part)
@@ -308,10 +375,10 @@ def send_notification_email(form_data):
                         logger.error(f"管理者通知メール送信失敗 ({recipient}): {str(recipient_error)}")
 
                 # 一時ファイルの削除
-                if eml_file and os.path.exists(eml_file):
+                if text_file and os.path.exists(text_file):
                     try:
-                        os.remove(eml_file)
-                        logger.info(f"一時ファイルを削除しました: {eml_file}")
+                        os.remove(text_file)
+                        logger.info(f"一時ファイルを削除しました: {text_file}")
                     except Exception as e:
                         logger.warning(f"一時ファイル削除エラー: {str(e)}")
 
