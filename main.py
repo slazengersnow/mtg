@@ -5,10 +5,13 @@ from flask import Flask, render_template, request, flash, redirect, url_for
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-from email.utils import formatdate
+from email.utils import formatdate, make_msgid, formataddr
+from email import message_from_string
+from email import encoders
 from datetime import datetime
 import logging
 from pathlib import Path
+import tempfile
 
 # =====================================
 # ロギング設定
@@ -30,6 +33,7 @@ app.config['PREFERRED_URL_SCHEME'] = 'https'
 
 # メール設定
 SENDER_EMAIL = os.environ.get('MAIL_USER', 'info1@bizmowa.com')
+SENDER_NAME = os.environ.get('MAIL_SENDER_NAME', 'Bizmowa予約システム')
 PASSWORD = os.environ.get('MAIL_PASSWORD', '')
 
 # 管理者メールアドレス
@@ -115,10 +119,82 @@ def create_email_content(form_data, is_admin=True):
 
 予約フォームURL: {meeting_link}
 
-※資料を添付しておりますので、ご確認ください。
+※申込内容の詳細をメール添付ファイル（.eml形式）でお送りしています。
+ メールクライアントで開くことでご確認いただけます。
 
 よろしくお願いいたします。
 """
+
+# =====================================
+# EMLファイル形式のメールを作成する関数
+# =====================================
+def create_email_eml_file(form_data):
+    """申込内容を含むEMLファイルを作成してパスを返す"""
+    try:
+        # 一時ファイルのパスを生成
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        filename = f"お申し込み内容_{form_data['company']}_{timestamp}.eml"
+        file_path = os.path.join(tempfile.gettempdir(), filename)
+        
+        # メールオブジェクトを作成
+        msg = MIMEMultipart()
+        msg["From"] = formataddr((SENDER_NAME, SENDER_EMAIL))
+        msg["To"] = formataddr((form_data['contact_person'], form_data['email']))
+        msg["Subject"] = f"【面談申込確認】{form_data['company']}様 面談のご予約内容"
+        msg["Date"] = formatdate(localtime=True)
+        msg["Message-ID"] = make_msgid(domain="bizmowa.com")
+        
+        # メール本文
+        email_body = f"""
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+面談申し込み内容 - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{form_data['company']} {form_data['contact_person']}様
+
+面談予約フォームにお問い合わせいただき、ありがとうございます。
+以下の内容でご予約を承りました。
+
+【希望日時】
+第1希望: {form_data['date1']} {form_data['time1']}
+第2希望: {form_data.get('date2', '')} {form_data.get('time2', '')}
+第3希望: {form_data.get('date3', '')} {form_data.get('time3', '')}
+第4希望: {form_data.get('date4', '')} {form_data.get('time4', '')}
+第5希望: {form_data.get('date5', '')} {form_data.get('time5', '')}
+
+【面談希望】
+{form_data.get('meeting_preference', '希望なし')}
+
+【連絡先情報】
+企業名: {form_data['company']}
+担当者名: {form_data['contact_person']}
+メールアドレス: {form_data['email']}
+
+【予約フォームURL】
+{BASE_URL}
+
+担当者より2、3営業日以内に折り返しご連絡させていただきます。
+よろしくお願いいたします。
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Bizmowa予約システム
+Email: {SENDER_EMAIL}
+URL: {BASE_URL}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"""
+        
+        # 本文を追加
+        msg.attach(MIMEText(email_body, "plain", "utf-8"))
+        
+        # EMLファイルとして保存
+        with open(file_path, 'wb') as f:
+            f.write(msg.as_bytes())
+            
+        logger.info(f"EMLファイルを作成しました: {file_path}")
+        return file_path
+    except Exception as e:
+        logger.error(f"EMLファイル作成エラー: {str(e)}")
+        return None
 
 # =====================================
 # 添付ファイル取得関数
@@ -152,6 +228,9 @@ def send_notification_email(form_data):
         # 添付ファイルのリストを取得
         attachment_files = get_attachment_files()
         
+        # EMLファイルを作成
+        eml_file = create_email_eml_file(form_data)
+        
         # エックスサーバー SMTP設定
         smtp_server = "sv1216.xserver.jp"
         smtp_port = 465  # SSL/TLS port
@@ -167,13 +246,25 @@ def send_notification_email(form_data):
 
                 # クライアントメール作成
                 client_msg = MIMEMultipart()
-                client_msg["From"] = SENDER_EMAIL
+                client_msg["From"] = formataddr((SENDER_NAME, SENDER_EMAIL))
                 client_msg["To"] = form_data['email']
                 client_msg["Subject"] = "面談予約リクエストを受け付けました"
                 client_msg["Date"] = formatdate(localtime=True)
-                client_msg.attach(MIMEText(create_email_content(form_data, is_admin=False), "plain"))
+                client_msg.attach(MIMEText(create_email_content(form_data, is_admin=False), "plain", "utf-8"))
 
-                # 添付ファイルの追加
+                # EMLファイルを添付
+                if eml_file and os.path.exists(eml_file):
+                    try:
+                        with open(eml_file, "rb") as attachment:
+                            filename = os.path.basename(eml_file)
+                            part = MIMEApplication(attachment.read(), Name=filename)
+                            part['Content-Disposition'] = f'attachment; filename="{filename}"'
+                            client_msg.attach(part)
+                            logger.info(f"EMLファイルを添付しました: {filename}")
+                    except Exception as file_error:
+                        logger.error(f"EMLファイル添付エラー: {str(file_error)}")
+                
+                # 通常の添付ファイルの追加
                 for attachment_file in attachment_files:
                     try:
                         with open(attachment_file, "rb") as attachment:
@@ -197,16 +288,32 @@ def send_notification_email(form_data):
                         
                     try:
                         admin_msg = MIMEMultipart()
-                        admin_msg["From"] = SENDER_EMAIL
+                        admin_msg["From"] = formataddr((SENDER_NAME, SENDER_EMAIL))
                         admin_msg["To"] = recipient
                         admin_msg["Subject"] = "新しい面談予約リクエストが届きました"
                         admin_msg["Date"] = formatdate(localtime=True)
-                        admin_msg.attach(MIMEText(create_email_content(form_data, is_admin=True), "plain"))
+                        admin_msg.attach(MIMEText(create_email_content(form_data, is_admin=True), "plain", "utf-8"))
+
+                        # 管理者メールにもEMLファイルを添付
+                        if eml_file and os.path.exists(eml_file):
+                            with open(eml_file, "rb") as attachment:
+                                filename = os.path.basename(eml_file)
+                                part = MIMEApplication(attachment.read(), Name=filename)
+                                part['Content-Disposition'] = f'attachment; filename="{filename}"'
+                                admin_msg.attach(part)
 
                         server.send_message(admin_msg)
                         logger.info(f"管理者通知メール送信成功: {recipient}")
                     except Exception as recipient_error:
                         logger.error(f"管理者通知メール送信失敗 ({recipient}): {str(recipient_error)}")
+
+                # 一時ファイルの削除
+                if eml_file and os.path.exists(eml_file):
+                    try:
+                        os.remove(eml_file)
+                        logger.info(f"一時ファイルを削除しました: {eml_file}")
+                    except Exception as e:
+                        logger.warning(f"一時ファイル削除エラー: {str(e)}")
 
                 return True
 
