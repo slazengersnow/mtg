@@ -4,22 +4,17 @@ import ssl
 from flask import Flask, render_template, request, flash, redirect, url_for
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 from email.utils import formatdate
 from datetime import datetime
 import logging
+from pathlib import Path
 
 # =====================================
 # ロギング設定
 # =====================================
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# =====================================
-# 環境変数の確認（起動時にログ出力）
-# =====================================
-logger.info("環境変数確認:")
-logger.info(f"MAIL_USER: {os.environ.get('MAIL_USER')}")
-logger.info(f"BASE_URL: {os.environ.get('BASE_URL')}")
 
 # =====================================
 # アプリケーション設定
@@ -45,6 +40,23 @@ NOTIFICATION_EMAILS = [
 
 # ベースURL設定 - 環境変数 > 独自ドメイン > Renderのデフォルト
 BASE_URL = os.environ.get('BASE_URL', "https://mtg.bizmowa.com")
+
+# 添付ファイルディレクトリ
+ATTACHMENTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'attachments')
+
+# 環境変数の確認（起動時にログ出力）
+logger.info("環境変数確認:")
+logger.info(f"MAIL_USER: {SENDER_EMAIL}")
+logger.info(f"BASE_URL: {BASE_URL}")
+logger.info(f"添付ファイルディレクトリ: {ATTACHMENTS_DIR}")
+
+# 添付ファイルディレクトリの存在確認
+if not os.path.exists(ATTACHMENTS_DIR):
+    try:
+        os.makedirs(ATTACHMENTS_DIR)
+        logger.info(f"添付ファイルディレクトリを作成しました: {ATTACHMENTS_DIR}")
+    except Exception as e:
+        logger.error(f"添付ファイルディレクトリの作成に失敗しました: {str(e)}")
 
 # =====================================
 # セキュリティヘッダー
@@ -103,8 +115,28 @@ def create_email_content(form_data, is_admin=True):
 
 予約フォームURL: {meeting_link}
 
+※資料を添付しておりますので、ご確認ください。
+
 よろしくお願いいたします。
 """
+
+# =====================================
+# 添付ファイル取得関数
+# =====================================
+def get_attachment_files():
+    """添付ファイルディレクトリから送信すべきファイルのリストを取得"""
+    try:
+        attachment_files = []
+        if os.path.exists(ATTACHMENTS_DIR):
+            for file in os.listdir(ATTACHMENTS_DIR):
+                file_path = os.path.join(ATTACHMENTS_DIR, file)
+                if os.path.isfile(file_path):
+                    attachment_files.append(file_path)
+            logger.info(f"添付ファイルを{len(attachment_files)}件見つけました")
+        return attachment_files
+    except Exception as e:
+        logger.error(f"添付ファイル取得エラー: {str(e)}")
+        return []
 
 # =====================================
 # メール送信関数
@@ -116,6 +148,9 @@ def send_notification_email(form_data):
 
     try:
         logger.info("メール送信開始")
+        
+        # 添付ファイルのリストを取得
+        attachment_files = get_attachment_files()
         
         # エックスサーバー SMTP設定
         smtp_server = "sv1216.xserver.jp"
@@ -137,6 +172,18 @@ def send_notification_email(form_data):
                 client_msg["Subject"] = "面談予約リクエストを受け付けました"
                 client_msg["Date"] = formatdate(localtime=True)
                 client_msg.attach(MIMEText(create_email_content(form_data, is_admin=False), "plain"))
+
+                # 添付ファイルの追加
+                for attachment_file in attachment_files:
+                    try:
+                        with open(attachment_file, "rb") as attachment:
+                            filename = os.path.basename(attachment_file)
+                            part = MIMEApplication(attachment.read(), Name=filename)
+                            part['Content-Disposition'] = f'attachment; filename="{filename}"'
+                            client_msg.attach(part)
+                            logger.info(f"添付ファイル追加成功: {filename}")
+                    except Exception as file_error:
+                        logger.error(f"添付ファイル追加エラー ({attachment_file}): {str(file_error)}")
 
                 # クライアントメール送信
                 server.send_message(client_msg)
