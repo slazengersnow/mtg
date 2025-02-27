@@ -7,7 +7,6 @@ from email.mime.multipart import MIMEMultipart
 from email.utils import formatdate
 from datetime import datetime
 import logging
-from google.cloud import secretmanager
 
 # =====================================
 # ロギング設定
@@ -16,32 +15,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # =====================================
-# Secret Managerからシークレットを取得する関数
-# =====================================
-def access_secret(secret_id, version_id="latest"):
-    try:
-        project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
-        if not project_id:
-            logger.warning("プロジェクトIDが環境変数から取得できませんでした。")
-            return None
-            
-        client = secretmanager.SecretManagerServiceClient()
-        name = f"projects/{project_id}/secrets/{secret_id}/versions/{version_id}"
-        response = client.access_secret_version(request={"name": name})
-        
-        logger.info(f"シークレット '{secret_id}' を正常に取得しました")
-        return response.payload.data.decode("UTF-8")
-        
-    except Exception as e:
-        logger.error(f"シークレット '{secret_id}' の取得に失敗しました: {str(e)}")
-        return None
-
-# =====================================
 # 環境変数の確認（起動時にログ出力）
 # =====================================
 logger.info("環境変数確認:")
 logger.info(f"MAIL_USER: {os.environ.get('MAIL_USER')}")
-logger.info(f"GOOGLE_CLOUD_PROJECT: {os.environ.get('GOOGLE_CLOUD_PROJECT')}")
 logger.info(f"BASE_URL: {os.environ.get('BASE_URL')}")
 
 # =====================================
@@ -58,14 +35,7 @@ app.config['PREFERRED_URL_SCHEME'] = 'https'
 
 # メール設定
 SENDER_EMAIL = os.environ.get('MAIL_USER', 'info1@bizmowa.com')
-
-# パスワードをSecret Managerから取得（フォールバックとして環境変数も使用）
-PASSWORD = access_secret('mail-password')
-if not PASSWORD:
-    PASSWORD = os.environ.get('MAIL_PASSWORD', '')
-    logger.info("環境変数からパスワードを取得しました" if PASSWORD else "パスワードが設定されていません")
-else:
-    logger.info("Secret Managerからパスワードを取得しました")
+PASSWORD = os.environ.get('MAIL_PASSWORD', '')
 
 # 管理者メールアドレス
 NOTIFICATION_EMAILS = [
@@ -73,8 +43,8 @@ NOTIFICATION_EMAILS = [
     "bizmowa@gmail.com"
 ]
 
-# ベースURL設定
-BASE_URL = os.environ.get('BASE_URL', "https://bizmowa-mtg-jp.an.r.appspot.com")
+# ベースURL設定 - 環境変数 > 独自ドメイン > Renderのデフォルト
+BASE_URL = os.environ.get('BASE_URL', "https://mtg.bizmowa.com")
 
 # =====================================
 # セキュリティヘッダー
@@ -127,6 +97,9 @@ def create_email_content(form_data, is_admin=True):
 第3希望: {form_data.get('date3', '')} {form_data.get('time3', '')}
 第4希望: {form_data.get('date4', '')} {form_data.get('time4', '')}
 第5希望: {form_data.get('date5', '')} {form_data.get('time5', '')}
+
+【面談希望】
+{form_data.get('meeting_preference', '希望なし')}
 
 予約フォームURL: {meeting_link}
 
@@ -224,7 +197,7 @@ def index():
                 'company': request.form['company'],
                 'contact_person': request.form['contact_person'],
                 'email': request.form['email'],
-                'meeting_preference': '面談希望' if request.form.get('meeting_preference') else '希望なし'
+                'meeting_preference': 'オンライン面談希望' if request.form.get('meeting_preference') else '対面希望'
             }
 
             logger.info(f"送信フォームデータ: {form_data}")
@@ -251,7 +224,7 @@ def index():
 # =====================================
 @app.route('/health', methods=['GET'])
 def health_check():
-    """GCPのヘルスチェック用エンドポイント"""
+    """ヘルスチェック用エンドポイント"""
     return "OK", 200
 
 # =====================================

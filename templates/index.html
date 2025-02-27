@@ -57,7 +57,7 @@
             flex: 1;
         }
         .checkbox-group {
-            margin-bottom: 5px;
+            margin-bottom: 20px;
         }
         button {
             background-color: #4CAF50;
@@ -91,22 +91,6 @@
             content: " *";
             color: red;
         }
-        .time-slots {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .time-slot {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .time-slot.selected {
-            background-color: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
-        }
         @media (max-width: 600px) {
             .date-time-pair {
                 flex-direction: column;
@@ -127,6 +111,108 @@
         {% endwith %}
         
         <form id="meetingForm" method="post" action="/">
+            <!-- 面談希望の選択をフォームの一番上に配置 -->
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="meeting_preference" name="meeting_preference" value="1">
+                <label for="meeting_preference">オンラインでの面談を希望</label>
+            </div>
+            
+            <div class="form-group">
+                <label for="date1" class="required">希望日時（第1希望）</label>
+                <div class="date-time-pair">
+                    <input type="date" id="date1" name="date1" required>
+                    <select id="time1" name="time1" required>
+                        <option value="">選択してください</option>
+                        <option value="10時〜11時">10時〜11時</option>
+                        <option value="11時〜12時">11時〜12時</option>
+                        <option value="13時〜14時">13時〜14時</option>
+                        <option value="14時〜15時">14時〜15時</option>
+                        <option value="15時〜16時">15時〜16時</option>
+                        <option value="16時〜17時">16時〜17時</option>
+                        <option value="17時〜18時">17時〜18時</option>
+                        <option value="18時〜19時">18時〜19時</option>
+                        <option value="19時〜20時">19時〜20時</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="date2">希望日時（第2希望）</label>
+                <div class="date-time-pair">
+                    <input type="date" id="date2" name="date2">
+                    <select id="time2" name="time2">
+                        <option value="">選択してください</option>
+                        <option value="10時〜11時">10時〜11時</option>
+                        <option value="11時〜12時">11時〜12時</option>
+                        <option value="13時〜14時">13時〜14時</option>
+                        <option value="14時〜15時">14時〜15時</option>
+                        <option value="15時〜16時">15時〜16時</option>
+                        <option value="16時〜17時">16時〜17時</option>
+                        <option value="17時〜18時">17時〜18時</option>
+                        <option value="18時〜19時">18時〜19時</option>
+                        <option value="19時〜20時">19時〜20時</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="date3">希望日時（第3希望）</label>
+                <div class="date-time-pair">
+                    <input type="date" id="date3" name="date3">
+                    <select id="time3" name="time3">
+                        <option value="">選択してください</option>
+                        <option value="10時〜11時">10時〜11時</option>
+                        <option value="11時〜12時">11時〜12時</option>
+                        <option value="13時〜14時">13時〜14時</option>
+                        <option value="14時〜15時">14時〜15時</option>
+                        <option value="15時〜16時">15時〜16時</option>
+                        <option value="16時〜17時">16時〜17時</option>
+                        <option value="17時〜18時">17時〜18時</option>
+                        <option value="18時〜19時">18時〜19時</option>
+                        <option value="19時〜20時">19時〜20時</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="date4">希望日時（第4希望）</label>
+                <div class="date-time-pair">
+                    <input type="date" id="date4" name="date4">
+                    <select id="time4" name="time4">
+                        <option value="">選択してください</option>
+                        <option value="10時〜11時">10時〜11時</option>
+                        <option value="11時〜12時">11時〜12時</option>
+                        <option value="13時〜14時">13時〜14時</option>
+                        <option value="14時〜15時">14時〜15時</option>
+                        <option value="15時〜16時">15時〜16時</option>
+                        <option value="16時〜17時">16時〜17時</option>
+                        <option value="17時〜18時">17時〜18時</option>
+                        <option value="18時〜19時">18時〜19時</option>
+                        <option value="19時〜20時">19時〜20時</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="date5">希望日時（第5希望）</label>
+                <div class="date-time-pair">
+                    <input type="date" id="date5" name="date5">
+                    <select id="time5" name="time5">
+                        <option value="">選択してください</option>
+                        <option value="10時〜11時">10時〜11時</option>
+                        <option value="11時〜12時">11時〜12時</option>
+                        <option value="13時〜14時">13時〜14時</option>
+                        <option value="14時〜15時">14時〜15時</option>
+                        <option value="15時〜16時">15時〜16時</option>
+                        <option value="16時〜17時">16時〜17時</option>
+                        <option value="17時〜18時">17時〜18時</option>
+                        <option value="18時〜19時">18時〜19時</option>
+                        <option value="19時〜20時">19時〜20時</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- 連絡先情報をフォームの一番下に配置 -->
             <div class="form-group">
                 <label for="company" class="required">企業名</label>
                 <input type="text" id="company" name="company" required>
@@ -140,106 +226,6 @@
             <div class="form-group">
                 <label for="email" class="required">メールアドレス</label>
                 <input type="email" id="email" name="email" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="date1" class="required">希望日時（第1希望）</label>
-                <div class="date-time-pair">
-                    <input type="date" id="date1" name="date1" required>
-                    <select id="time1" name="time1" required>
-                        <option value="">選択してください</option>
-                        <option value="10:00">10:00</option>
-                        <option value="11:00">11:00</option>
-                        <option value="13:00">13:00</option>
-                        <option value="14:00">14:00</option>
-                        <option value="15:00">15:00</option>
-                        <option value="16:00">16:00</option>
-                        <option value="17:00">17:00</option>
-                        <option value="18:00">19:00</option>
-                        <option value="19:00">19:00</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="date2">希望日時（第2希望）</label>
-                <div class="date-time-pair">
-                    <input type="date" id="date2" name="date2">
-                    <select id="time2" name="time2">
-                        <option value="">選択してください</option>
-                        <option value="10:00">10:00</option>
-                        <option value="11:00">11:00</option>
-                        <option value="13:00">13:00</option>
-                        <option value="14:00">14:00</option>
-                        <option value="15:00">15:00</option>
-                        <option value="16:00">16:00</option>
-                        <option value="17:00">17:00</option>
-                        <option value="18:00">19:00</option>
-                        <option value="19:00">19:00</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="date3">希望日時（第3希望）</label>
-                <div class="date-time-pair">
-                    <input type="date" id="date3" name="date3">
-                    <select id="time3" name="time3">
-                        <option value="">選択してください</option>
-                        <option value="10:00">10:00</option>
-                        <option value="11:00">11:00</option>
-                        <option value="13:00">13:00</option>
-                        <option value="14:00">14:00</option>
-                        <option value="15:00">15:00</option>
-                        <option value="16:00">16:00</option>
-                        <option value="17:00">17:00</option>
-                        <option value="18:00">19:00</option>
-                        <option value="19:00">19:00</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="date4">希望日時（第4希望）</label>
-                <div class="date-time-pair">
-                    <input type="date" id="date4" name="date4">
-                    <select id="time4" name="time4">
-                        <option value="">選択してください</option>
-                        <option value="10:00">10:00</option>
-                        <option value="11:00">11:00</option>
-                        <option value="13:00">13:00</option>
-                        <option value="14:00">14:00</option>
-                        <option value="15:00">15:00</option>
-                        <option value="16:00">16:00</option>
-                        <option value="17:00">17:00</option>
-                        <option value="18:00">17:00</option>
-                        <option value="19:00">17:00</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="date5">希望日時（第5希望）</label>
-                <div class="date-time-pair">
-                    <input type="date" id="date5" name="date5">
-                    <select id="time5" name="time5">
-                        <option value="">選択してください</option>
-                        <option value="10:00">10:00</option>
-                        <option value="11:00">11:00</option>
-                        <option value="13:00">13:00</option>
-                        <option value="14:00">14:00</option>
-                        <option value="15:00">15:00</option>
-                        <option value="16:00">16:00</option>
-                        <option value="17:00">17:00</option>
-                        <option value="18:00">19:00</option>
-                        <option value="19:00">19:00</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-group checkbox-group">
-                <input type="checkbox" id="meeting_preference" name="meeting_preference" value="1">
-                <label for="meeting_preference">オンラインでの面談を希望</label>
             </div>
             
             <button type="submit">予約する</button>
@@ -265,12 +251,7 @@
                     event.preventDefault();
                     alert('第1希望の日時を入力してください');
                 }
-                
-                // その他のバリデーションロジックを追加できます
             });
-            
-            // 各日付入力にカスタムイベントリスナーを追加することも可能
-            // 例: 第2希望の日付が入力されたら時間も必須にするなど
         });
     </script>
 </body>
