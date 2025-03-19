@@ -5,7 +5,8 @@ build:
     build:
       - pip install -r requirements.txt
 run:
-  command: python app.py
+  # 実際のファイル名に合わせて変更してください
+  command: python main.py  # 例：main.py や server.py など
   network:
     port: 8080
   env:
@@ -16,6 +17,6 @@ run:
     - name: MAIL_SENDER_NAME  
       value: Bizmowa予約システム
     - name: BASE_URL
-      value: https://mtg.bizmowa.com
+      value: https://your-app-runner-url.amazonaws.com
     - name: MAIL_PASSWORD
       value: Sl05936623
