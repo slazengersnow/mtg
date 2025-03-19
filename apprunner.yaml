@@ -2,15 +2,12 @@ version: 1.0
 runtime: python3
 build:
   commands:
-    pre-build:
-      - echo "Installing dependencies..."
     build:
-      - pip3 install -r requirements.txt
+      - pip install -r requirements.txt
 run:
   command: python app.py
   network:
     port: 8080
-    env: PORT
   env:
     - name: FLASK_SECRET_KEY
       value: meeting-scheduler-2025
@@ -19,4 +16,6 @@ run:
     - name: MAIL_SENDER_NAME  
       value: Bizmowa予約システム
     - name: BASE_URL
-      value: https://your-app-runner-url.amazonaws.com
+      value: https://mtg.bizmowa.com
+    - name: MAIL_PASSWORD
+      value: Sl05936623
