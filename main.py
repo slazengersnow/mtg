@@ -36,7 +36,7 @@ PASSWORD = os.environ.get('MAIL_PASSWORD', '')
 
 # 管理者メールアドレス
 NOTIFICATION_EMAILS = [
-    "slazengersnow@gmail.com", 
+    "y.inoue@filterbank.co.jp", 
     "bizmowa@gmail.com"
 ]
 
